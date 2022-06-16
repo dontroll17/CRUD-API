@@ -24,7 +24,7 @@ export const handler = async (req: any, res: any) => {
             const user = users.filter((users: any) => users.id === id );
             if(user.length === 0) {
                 res.writeHead(404, {'Content-Type': 'application/json'});
-                return res.end('Not found');
+                return res.end(JSON.stringify('Not found'));
             }
             res.writeHead(200, {'Content-Type': 'application/json'});
             return res.end(JSON.stringify(user));

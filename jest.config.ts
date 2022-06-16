@@ -4,7 +4,7 @@ export default {
       "^.+\\.(ts|tsx)$": "ts-jest",
     },
     testMatch: [
-        "**/test/*.ts"
+        "**/tests/*.ts"
     ],
     testEnvironment: "node",
   };
