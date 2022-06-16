@@ -1,4 +1,5 @@
 import { validate, v4 } from 'uuid';
+import { findUser } from './findUser';
 
 let userStore: string[] = [];
 
@@ -17,14 +18,14 @@ export const handler = async (req: any, res: any) => {
     
             if(!validate(id)) {
                 res.writeHead(400, {'Content-Type': 'application/json'});
-                return res.end('Not valid uuid');
+                return res.end(JSON.stringify({ message: 'Not valid uuid' }));
             }
     
             const users = userStore;
             const user = users.filter((users: any) => users.id === id );
             if(user.length === 0) {
                 res.writeHead(404, {'Content-Type': 'application/json'});
-                return res.end(JSON.stringify('Not found'));
+                return res.end(JSON.stringify({ message: 'Not found' }));
             }
             res.writeHead(200, {'Content-Type': 'application/json'});
             return res.end(JSON.stringify(user));
@@ -44,13 +45,12 @@ export const handler = async (req: any, res: any) => {
                 //something wrong
                 if(!bodyToJSON.username || !bodyToJSON.age || !bodyToJSON.hobbies) {
                     res.writeHead(400, {'Content-Type': 'application/json'});
-                    return res.end("bad request");
+                    return res.end(JSON.stringify({ message: "bad request" }));
                 }
     
                 bodyToJSON.id = id;
                 userStore.push(bodyToJSON);
             });
-    
             res.writeHead(201, {'Content-Type': 'application/json'});
             return res.end(JSON.stringify({ userAdded: id}));
         }
@@ -61,47 +61,55 @@ export const handler = async (req: any, res: any) => {
     
             if(!validate(id)) {
                 res.writeHead(400, {'Content-Type': 'application/json'});
-                return res.end('Not valid uuid');
+                return res.end(JSON.stringify( { message: 'Not valid uuid' }));
             }
+            
+            const check = findUser(userStore, id);
+
+            if(check) {
+                let users = userStore;
     
-            let users = userStore;
-    
-            let filtered = users.filter((users: any) => users.id !== id );
-    
-            if(filtered.length !== users.length) {
+                let filtered = users.filter((users: any) => users.id !== id );
                 userStore = filtered;
                 res.writeHead(204, {'Content-Type': 'application/json'});
-                return res.end('User delete');
+                return res.end(JSON.stringify({ message:'User delete' }));
+
+                    
             } else {
                 res.writeHead(404, {'Content-Type': 'application/json'});
-                return res.end('Id not found');
+                return res.end(JSON.stringify({ message:'Id not found' }));
             }
-        }
-    
+        }  
+        
         if(req.url.match(/\api\/users\/(.+)/) && req.method === 'PUT') {
             const urlArr = req.url.split('/');
             const id = urlArr[urlArr.length - 1];
     
             if(!validate(id)) {
                 res.writeHead(400, {'Content-Type': 'application/json'});
-                return res.end('Not valid uuid');
+                return res.end(JSON.stringify({ message: 'Not valid uuid' }));
             }
-    
-            let body = '';
-            req.on('data', (data: string) => {
-                body += data;
-            });
-    
-            req.on('end', () => {
-                let bodyToJSON = JSON.parse(body);
-                bodyToJSON.id = id
-    
-                let filter = userStore.filter((user: any) => user.id !== id);
-                filter.push(bodyToJSON);
-                userStore = filter;
-            });
             
+            const check = findUser(userStore, id);
+            if(check) {
+                let body = '';
+                req.on('data', (data: string) => {
+                    body += data;
+                });
     
+                req.on('end', () => {
+                    let bodyToJSON = JSON.parse(body);
+                    bodyToJSON.id = id
+        
+                    let filter = userStore.filter((user: any) => user.id !== id);
+                    filter.push(bodyToJSON);
+                    userStore = filter;
+                });
+                
+            } else {
+                res.writeHead(404, {'Content-Type': 'application/json'});
+                return res.end(JSON.stringify({ message:'Id not found' }));
+            }
         }
     
         if(!req.url.startsWith('/api/users')) {
