@@ -29,7 +29,7 @@ describe('create', () => {
                 let textParse = JSON.parse(res.text)
                 id = textParse['userAdded'];
                 done();
-            });
+        });
     });
     
     it('should return 200 from GET', done => {
@@ -40,9 +40,8 @@ describe('create', () => {
                 if(err) {
                     return done(err);
                 }
-                console.log(res.text);
                 done();
-            });
+        });
     });
 });
 
@@ -56,7 +55,7 @@ describe('work with user', () => {
                     return done(err);
                 }
                 done();
-            });
+        });
     });
 
     it('should return 200 from PUT', done => {
@@ -70,7 +69,7 @@ describe('work with user', () => {
                     return done(err);
                 }
                 done();
-            });
+        });
     });
 });
 
@@ -84,7 +83,7 @@ describe('delete user', () => {
                     return done(err)
                 }
                 done();
-            });
+        });
     });
 
     it('should return 404 from GET', done => {
@@ -96,7 +95,7 @@ describe('delete user', () => {
                     return done(err);
                 }
                 done();
-            });
+        });
     });
 });
 

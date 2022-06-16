@@ -40,19 +40,27 @@ export const handler = async (req: any, res: any) => {
             });
     
             req.on('end', () => {
-                let bodyToJSON = JSON.parse(body);
-    
-                //something wrong
-                if(!bodyToJSON.username || !bodyToJSON.age || !bodyToJSON.hobbies) {
-                    res.writeHead(400, {'Content-Type': 'application/json'});
-                    return res.end(JSON.stringify({ message: "bad request" }));
+                try {
+                    if(body.length === 0) {
+                        res.writeHead(400, {'Content-Type': 'application/json'});
+                        return res.end(JSON.stringify({ message: "bad request" }));
+                    }
+                    let bodyToJSON = JSON.parse(body);
+        
+                    //something wrong
+                    if(!bodyToJSON.username || !bodyToJSON.age || !bodyToJSON.hobbies) {
+                        res.writeHead(400, {'Content-Type': 'application/json'});
+                        return res.end(JSON.stringify({ message: "bad request" }));
+                    }
+        
+                    bodyToJSON.id = id;
+                    userStore.push(bodyToJSON);
+                    res.writeHead(201, {'Content-Type': 'application/json'});
+                     return res.end(JSON.stringify({ userAdded: id}));
+                } catch(e) {
+                    throw(e);
                 }
-    
-                bodyToJSON.id = id;
-                userStore.push(bodyToJSON);
             });
-            res.writeHead(201, {'Content-Type': 'application/json'});
-            return res.end(JSON.stringify({ userAdded: id}));
         }
     
         if(req.url.match(/\api\/users\/(.+)/) && req.method === 'DELETE') {
@@ -73,8 +81,7 @@ export const handler = async (req: any, res: any) => {
                 userStore = filtered;
                 res.writeHead(204, {'Content-Type': 'application/json'});
                 return res.end(JSON.stringify({ message:'User delete' }));
-
-                    
+  
             } else {
                 res.writeHead(404, {'Content-Type': 'application/json'});
                 return res.end(JSON.stringify({ message:'Id not found' }));
@@ -104,6 +111,10 @@ export const handler = async (req: any, res: any) => {
                     let filter = userStore.filter((user: any) => user.id !== id);
                     filter.push(bodyToJSON);
                     userStore = filter;
+
+                    
+                    res.writeHead(200, {'Content-Type': 'application/json'});
+                    return res.end(JSON.stringify({ message: 'user updated'}));
                 });
                 
             } else {
@@ -116,7 +127,6 @@ export const handler = async (req: any, res: any) => {
             res.writeHead(404, {'Content-Type': 'application/json'});
             return res.end(JSON.stringify({ message: 'url not found' }));
         }
-        res.end('Done');
     } catch(e) {
         console.error(e);
         res.writeHead(500, {'Content-Type': 'application/json'});
