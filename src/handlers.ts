@@ -47,7 +47,6 @@ export const handler = async (req: any, res: any) => {
                     }
                     let bodyToJSON = JSON.parse(body);
         
-                    //something wrong
                     if(!bodyToJSON.username || !bodyToJSON.age || !bodyToJSON.hobbies) {
                         res.writeHead(400, {'Content-Type': 'application/json'});
                         return res.end(JSON.stringify({ message: "bad request" }));
@@ -101,7 +100,7 @@ export const handler = async (req: any, res: any) => {
             if(check) {
                 let body = '';
                 req.on('data', (data: string) => {
-                    body += data;
+                    body += data.toString();
                 });
     
                 req.on('end', () => {
